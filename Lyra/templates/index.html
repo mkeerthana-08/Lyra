@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🌌 Lyra — Cognitive Code Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
+</head>
+<body class="{% if theme == 'light' %}light-mode{% else %}cosmic-bg{% endif %}">
+
+
+    <!-- Header Section -->
+    <header class="site-header fade-in">
+        <div class="brand">
+            <div class="logo glow-cycle">🌌</div>
+            <div>
+                <h1 class="title glow-cycle" style="font-size: 3rem; font-weight: bold;">LYRA</h1>
+                <p class="subtitle">Cognitive Code Intelligence</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="ghost-btn" onclick="location.reload();">Refresh</button>
+        </div>
+    </header>
+
+    <!-- Brief Description Section -->
+    <section id="description" class="description-section">
+        <div class="container">
+            <h2>Welcome to Lyra</h2>
+            <p>Lyra is your go-to platform for analyzing and strategizing complex systems. With cutting-edge tools and intuitive design, we aim to simplify complexity and empower decision-making. Explore our features and see how Lyra can transform your workflows.</p>
+        </div>
+    </section>
+    <!-- End of Brief Description Section -->
+
+    <!-- Input Panel: Problem on top (optional), then language + code -->
+    <main class="container">
+        <form method="POST" class="input-panel slide-up">
+            {% set execution_output = result.execution.output if result and result.execution else None %}
+            {% set execution_error = result.execution.error if result and result.execution else None %}
+            <!-- Removed the problem statement block -->
+
+            <div class="panel-grid two-cols">
+                <section class="card glass settings">
+                    <div class="card-header">
+                        <h3>⚙️ Settings</h3>
+                    </div>
+                    <div class="card-body">
+                        <label class="field">
+                            <span>Language</span>
+                            <select name="language" class="select">
+                                <option value="python" {% if language=='python' %}selected{% endif %}>Python</option>
+                                <option value="cpp" {% if language=='cpp' %}selected{% endif %}>C++</option>
+                                <option value="c" {% if language=='c' %}selected{% endif %}>C</option>
+                                <option value="java" {% if language=='java' %}selected{% endif %}>Java</option>
+                                <option value="js" {% if language=='js' %}selected{% endif %}>JavaScript</option>
+                            </select>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="card glass code-card">
+                    <div class="card-header">
+                        <h3>💻 Code Input</h3>
+                    </div>
+                    <div class="card-body">
+                        <textarea id="codeInput" name="code" placeholder="Paste your code here..." class="input-textarea" rows="24" required>{{ code_input }}</textarea>
+                    </div>
+                    <div class="output-wrapper">
+                        <div class="output-card">
+                            <div class="card-header">
+                                <h3>🖥️ Output</h3>
+                            </div>
+                            <div class="card-body">
+                                {% if result and (execution_output or execution_error) %}
+                                    {% if execution_output %}
+                                    <div class="output-success">
+                                        <pre>{{ execution_output }}</pre>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if execution_error %}
+                                    <div class="output-error">
+                                        <pre>{{ execution_error }}</pre>
+                                    </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="output-placeholder">
+                                        <pre id="codeOutput">Run the code to see output...</pre>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="primary-btn glow-hover">Analyze</button>
+                <button type="button" class="run-code-btn" onclick="runCode()">▶ Run Code</button>
+            </div>
+        </form>
+
+        <!-- Results Panel: Glass cards with reveal animation -->
+        {% if result %}
+        <section class="results-panel">
+            <div class="results-grid">
+                <article class="card glass reveal complexity-card">
+                    <div class="card-header">
+                        <h3>⏱️ Time Complexity</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="complexity-line">
+                            <span class="badge">{{ result.get('time_complexity', 'Unknown') }}</span>
+                            <div class="complexity-bar {{ result.get('time_class', '') }}"></div>
+                        </div>
+                        <ul class="list small">
+                            {% for note in result.get('time_notes', []) %}
+                                <li>{{ note }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="card glass reveal complexity-card">
+                    <div class="card-header">
+                        <h3>💾 Space Complexity</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="complexity-line">
+                            <span class="badge">{{ result.get('space_complexity', 'Unknown') }}</span>
+                            <div class="complexity-bar {{ result.get('space_class', '') }}"></div>
+                        </div>
+                        <ul class="list small">
+                            {% for note in result.get('space_notes', []) %}
+                                <li>{{ note }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </article>
+                {% if language == 'python' %}
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>📊 Cyclomatic Complexity</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if result["complexity"] %}
+                        <ul class="list">
+                            {% for name, complexity in result["complexity"] %}
+                                <li><span class="mono">{{ name }}</span> → <strong>{{ complexity }}</strong></li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="muted">No functions detected.</p>
+                        {% endif %}
+                    </div>
+                </article>
+                {% else %}
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>📊 Cyclomatic Complexity</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="muted">Not available for selected language.</p>
+                    </div>
+                </article>
+                {% endif %}
+
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>🔁 Nested Loop Depth</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric">{{ result["nested_loops"] }}</p>
+                    </div>
+                </article>
+
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>🚨 Risks</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if result["risks"] %}
+                        <ul class="list">
+                            {% for risk in result["risks"] %}
+                                <li>{{ risk }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="muted">No obvious risks detected.</p>
+                        {% endif %}
+                    </div>
+                </article>
+
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>🧪 Edge Cases</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if result["edge_cases"] %}
+                        <ul class="list">
+                            {% for edge in result["edge_cases"] %}
+                                <li>{{ edge }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="muted">No specific edge cases flagged.</p>
+                        {% endif %}
+                    </div>
+                </article>
+
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>🧠 Strategy</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if result["strategy"] %}
+                        <ul class="list badges">
+                            {% for strategy in result["strategy"] %}
+                                <li class="badge">{{ strategy }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="muted">No clear strategy detected.</p>
+                        {% endif %}
+                    </div>
+                </article>
+
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>📌 Alignment Insights</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list">
+                            {% for insight in result.get("alignment_insights", []) %}
+                                <li>{{ insight }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>🛠️ Optimization Suggestions</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list">
+                            {% for suggestion in result.get("optimization_suggestions", []) %}
+                                <li>{{ suggestion }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="card glass reveal">
+                    <div class="card-header">
+                        <h3>🧠 ML Code Quality</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric">{{ result["ml_quality"] }}</p>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <div class="chatbot-widget">
+        <button id="chatbot-toggle" type="button" class="chatbot-toggle" aria-label="Open chat">
+            <span class="chatbot-icon">💬</span>
+        </button>
+        <div id="chatbot-window" class="chatbot-window" aria-live="polite">
+            <div class="chatbot-header">
+                <div>
+                    <p class="chatbot-title">Lyra Assistant</p>
+                    <p class="chatbot-subtitle">Ask about code insights</p>
+                </div>
+                <button id="chatbot-close" type="button" class="chatbot-close" aria-label="Close chat">✕</button>
+            </div>
+            <div class="chatbot-messages" id="chatbot-messages">
+                <div class="chatbot-message bot fade-in">
+                    <div class="chatbot-bubble">
+                        hello, iam lyra how can i help you
+                    </div>
+                </div>
+            </div>
+            <form id="chatbot-form" class="chatbot-input-row">
+                <input type="text" id="chatbot-input" name="message" placeholder="Ask something..." autocomplete="off" />
+                <button type="submit" class="chatbot-send">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="site-footer fade-in">
+        <p>Built with ❤️ by Lyra • Analyze smarter</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+    <script src="{{ url_for('static', filename='code-executor.js') }}"></script>
+</body>
+</html>
