@@ -89,7 +89,7 @@ Create a `.env` or set variables in your shell:
 python app.py
 ```
 
-Open http://127.0.0.1:5000 in your browser.
+Open https://lyra-yylx.onrender.com/ in your browser.
 
 ## Code Execution Requirements
 
