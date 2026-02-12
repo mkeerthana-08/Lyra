@@ -28,36 +28,44 @@ Lyra is a Flask web app for code analysis and lightweight execution. It estimate
 ## Project Structure
 
 ```
-Lyra/
-  app.py
-  complexity_analyzer.py
-  main.py
-  requirements.txt
-  analyzers/
-    __init__.py
-    alignment_engine.py
-    complexity_engine.py
-    generic_engine.py
-    risk_engine.py
-    strategy_engine.py
-  executor/
-    code_runner.py
-    java_executor.py
-    c_executor.py
-    cpp_executor.py
-    js_executor.py
-  ml/
-    quality_model.py
-    train_model.py
-  static/
-    animations.css
-    chatbot.js
-    code-executor.js
-    style.css
-  templates/
-    index.html
-  sample_codes/
-    example1.py
+Lyra/  
+│
+├── app.py
+├── main.py
+├── complexity_analyzer.py
+├── requirements.txt
+│
+├── analyzers/
+│   ├── __init__.py
+│   ├── alignment_engine.py
+│   ├── complexity_engine.py
+│   ├── generic_engine.py
+│   ├── risk_engine.py
+│   └── strategy_engine.py
+│
+├── executor/
+│   ├── code_runner.py
+│   ├── java_executor.py
+│   ├── c_executor.py
+│   ├── cpp_executor.py
+│   └── js_executor.py
+│
+├── ml/
+│   ├── quality_model.py
+│   └── train_model.py
+│
+├── static/
+│   ├── style.css
+│   ├── animations.css
+│   ├── chatbot.js
+│   └── code-executor.js
+│
+├── templates/
+│   └── index.html
+│
+└── sample_codes/
+    └── example1.py
+
 ```
 
 ## Setup
@@ -128,6 +136,3 @@ python ml/train_model.py
 - Non-Python languages use heuristic analysis in `analyzers/generic_engine.py`.
 - Execution is time-limited to reduce runaway code.
 
-## License
-
-Add your preferred license here.
